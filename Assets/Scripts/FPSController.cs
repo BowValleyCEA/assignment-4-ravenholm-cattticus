@@ -8,7 +8,7 @@ public class FPSController : MonoBehaviour
     private float _xRotation;
     private Vector3 _moveVector;
     private Vector3 _jumpVector;
-    private float gravity = 9.81f;
+    private float gravity;
     private CharacterController _controller;
 
     [SerializeField] private float mouseSensitivity = 200f;
@@ -16,7 +16,7 @@ public class FPSController : MonoBehaviour
     [SerializeField] private Camera camera;
     [SerializeField] private float xCameraBounds = 60f;
 
-    private bool isGrounded = true;
+    
     
     
     #region Smoothing code
@@ -46,6 +46,12 @@ public class FPSController : MonoBehaviour
 
     private void Movement()
     {
+        gravity += 9.81f;
+        if (_controller.isGrounded)
+        {
+            gravity = 0f;
+            _moveVector.y = 0f;
+        }
       
         _moveVector = transform.forward * Input.GetAxis("Vertical") + transform.right * Input.GetAxis("Horizontal"); //easier to explain after by using the forward and right vectors
         _moveVector.Normalize();
@@ -55,7 +61,7 @@ public class FPSController : MonoBehaviour
         
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            _moveVector.y = 10;
+            _moveVector.y = 6;
         }
         _controller.Move(_moveVector ); //controling movement with respect to delta time
         
