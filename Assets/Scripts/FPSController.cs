@@ -8,6 +8,7 @@ public class FPSController : MonoBehaviour
     private float _xRotation;
     private Vector3 _moveVector;
     private CharacterController _controller;
+
     [SerializeField] private float mouseSensitivity = 200f;
     [SerializeField] private float speed = 5f;
     [SerializeField] private Camera camera;
@@ -46,6 +47,10 @@ public class FPSController : MonoBehaviour
         _controller.SimpleMove(_moveVector * speed );
     }
 
+    private void Jump()
+    {
+       
+    }
     private void Rotation()
     {
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
