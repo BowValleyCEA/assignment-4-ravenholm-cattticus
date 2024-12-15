@@ -7,12 +7,16 @@ public class FPSController : MonoBehaviour
 {
     private float _xRotation;
     private Vector3 _moveVector;
+    private Vector3 _jumpVector;
     private CharacterController _controller;
 
     [SerializeField] private float mouseSensitivity = 200f;
     [SerializeField] private float speed = 5f;
     [SerializeField] private Camera camera;
     [SerializeField] private float xCameraBounds = 60f;
+
+    private bool isGrounded = true;
+    
     
     #region Smoothing code
     private Vector2 _currentMouseDelta;
@@ -41,10 +45,17 @@ public class FPSController : MonoBehaviour
 
     private void Movement()
     {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            _jumpVector.y = 5;
+        }
+
         //_moveVector = new Vector3(Input.GetAxis("Horizontal"),0, Input.GetAxis("Vertical")) * speed * Time.deltaTime;//initial way of showing movement
         _moveVector = transform.forward * Input.GetAxis("Vertical") + transform.right * Input.GetAxis("Horizontal"); //easier to explain after by using the forward and right vectors
         _moveVector.Normalize();
-        _controller.SimpleMove(_moveVector * speed );
+        _controller.SimpleMove(_moveVector * speed + _jumpVector );
+        _jumpVector = Vector3.zero; //stops player from continuously moving up after jumping
+
     }
 
     private void Jump()
