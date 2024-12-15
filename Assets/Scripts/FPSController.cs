@@ -8,7 +8,7 @@ public class FPSController : MonoBehaviour
     private float _xRotation;
     private Vector3 _moveVector;
     private Vector3 _jumpVector;
-    private float gravity = -9.81f;
+    private float gravity = 9.81f;
     private CharacterController _controller;
 
     [SerializeField] private float mouseSensitivity = 200f;
@@ -46,18 +46,18 @@ public class FPSController : MonoBehaviour
 
     private void Movement()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            _jumpVector.y = 2;
-           //Debug.Log("you jumped");
-        }
-
-        //_moveVector = new Vector3(Input.GetAxis("Horizontal"),0, Input.GetAxis("Vertical")) * speed * Time.deltaTime;//initial way of showing movement
+      
         _moveVector = transform.forward * Input.GetAxis("Vertical") + transform.right * Input.GetAxis("Horizontal"); //easier to explain after by using the forward and right vectors
         _moveVector.Normalize();
-        //_controller.SimpleMove(_moveVector * speed );
-        _controller.Move(_jumpVector + _moveVector * speed * Time.deltaTime); //controling movement with respect to delta time
-        _jumpVector = Vector3.zero; //stops player from continuously moving up after jumping
+        _moveVector *= speed;
+        _moveVector.y -= gravity;
+        _moveVector *= Time.deltaTime;
+        
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            _moveVector.y = 10;
+        }
+        _controller.Move(_moveVector ); //controling movement with respect to delta time
         
     }
 
