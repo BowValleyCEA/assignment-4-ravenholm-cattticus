@@ -46,25 +46,34 @@ public class FPSController : MonoBehaviour
 
     private void Movement()
     {
-        gravity += 9.81f;
-        if (_controller.isGrounded)
-        {
-            gravity = 0f;
-            _moveVector.y = 0f;
-        }
+        bool wasOnGround = _controller.isGrounded; 
+        bool isActuallyOnGround = false; 
+
+       
       
         _moveVector = transform.forward * Input.GetAxis("Vertical") + transform.right * Input.GetAxis("Horizontal"); //easier to explain after by using the forward and right vectors
         _moveVector.Normalize();
         _moveVector *= speed;
         _moveVector.y -= gravity;
         _moveVector *= Time.deltaTime;
-        
-        if (Input.GetKeyDown(KeyCode.Space))
+       
+        gravity += 9.81f;
+        if (_controller.isGrounded)
         {
-            _moveVector.y = 6;
+            gravity = 0f;
+            _moveVector.y = -0.01f; //forces character controller to recognize player is on the ground (shoutout mason)
         }
-        _controller.Move(_moveVector ); //controling movement with respect to delta time
+
+        _controller.Move(_moveVector );
         
+        isActuallyOnGround = wasOnGround || _controller.isGrounded;
+
+        if (Input.GetKeyDown(KeyCode.Space) && isActuallyOnGround)
+        {
+            _moveVector.y += 6;
+        }
+
+
     }
 
     private void Jump()
