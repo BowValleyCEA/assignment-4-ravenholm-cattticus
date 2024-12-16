@@ -8,7 +8,7 @@ public class GravityGun : MonoBehaviour
     [SerializeField] float maxGravityDist = 10f;
     [SerializeField] float throwForce = 20f;
     [SerializeField] float lerpSpeed = 10f;
-    [SerializeField] Transform objectHolder;
+    [SerializeField] Transform objectHolder; // is what is called to "grab" the object
 
     Rigidbody grabbedRB;
 
@@ -18,21 +18,20 @@ public class GravityGun : MonoBehaviour
 
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (grabbedRB)
         {
             grabbedRB.MovePosition(Vector3.Lerp(grabbedRB.position, objectHolder.transform.position, Time.deltaTime * lerpSpeed));
         }
-        if (Input.GetMouseButtonDown(1))
+        if (Input.GetMouseButtonDown(1)) // controls projecting the object
         {
             grabbedRB.isKinematic = false;
             grabbedRB.AddForce(camera.transform.forward * throwForce, ForceMode.VelocityChange);
             grabbedRB = null;
         }
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0)) // controls picking up objects
         {
             if (grabbedRB)
             {
