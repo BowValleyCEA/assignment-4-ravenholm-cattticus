@@ -6,95 +6,84 @@ using UnityEngine;
 public class FPSController : MonoBehaviour
 {
     private float _xRotation;
-    private Vector3 _moveVector;
-    private Vector3 _jumpVector;
-    private float gravity;
-    private CharacterController _controller;
+    private CharacterController _characterController;
 
-    [SerializeField] private float mouseSensitivity = 200f;
-    [SerializeField] private float speed = 5f;
-    [SerializeField] private Camera camera;
-    [SerializeField] private float xCameraBounds = 60f;
+    #region Mouse look
+    [SerializeField] private float _mouseSensitivity = 200f;
+    [SerializeField] private Camera _camera;
+    [SerializeField] private float _xCameraBounds = 60f;
+    #endregion
 
-    
-    
-    
-    #region Smoothing code
+    #region Smoothing
     private Vector2 _currentMouseDelta;
     private Vector2 _currentMouseVelocity;
-    [SerializeField] private float smoothTime = .1f;
-    
+    [SerializeField] private float _smoothTime = .1f;
     #endregion
-    // Start is called before the first frame update
-    void Start()
+
+    #region Movement
+    public Vector3 Velocity;
+    [SerializeField] public float JumpStrength = 7.0F;
+    [SerializeField] public float WalkSpeed = 5.0F;
+    #endregion
+
+    public void Awake()
+    {
+        _characterController = GetComponent<CharacterController>();
+    }
+
+    public void Start()
     {
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
     }
 
-    void Awake()
-    {
-        _controller = GetComponent<CharacterController>();
-    }
-
-    // Update is called once per frame
-    void Update()
+    public void Update()
     {
         Movement();
         Rotation();
     }
 
-    private void Movement()
+    private void Movement() //had a call with Mason where he helped me figure out all the movement issues
     {
-        bool wasOnGround = _controller.isGrounded; 
-        bool isActuallyOnGround = false; 
+        Vector3 moveVector;
 
-       
-      
-        _moveVector = transform.forward * Input.GetAxis("Vertical") + transform.right * Input.GetAxis("Horizontal"); //easier to explain after by using the forward and right vectors
-        _moveVector.Normalize();
-        _moveVector *= speed;
-        _moveVector.y -= gravity;
-        _moveVector *= Time.deltaTime;
-       
-        gravity += 9.81f;
-        if (_controller.isGrounded)
+        moveVector = transform.forward * Input.GetAxisRaw("Vertical");
+        moveVector += transform.right * Input.GetAxisRaw("Horizontal");
+        moveVector.Normalize();
+        moveVector *= WalkSpeed;
+        Velocity.x = moveVector.x;
+        Velocity.z = moveVector.z;
+        Velocity.y -= 0.1F;
+
+        Vector3 fudge = Vector3.zero;
+
+        if (!_characterController.isGrounded)
         {
-            gravity = 0f;
-            _moveVector.y = -0.01f; //forces character controller to recognize player is on the ground (shoutout mason)
+            fudge = Vector3.down * 0.01F;
         }
 
-        _controller.Move(_moveVector );
-        
-        isActuallyOnGround = wasOnGround || _controller.isGrounded;
+        _characterController.Move(Velocity * Time.deltaTime + fudge);
 
-        if (Input.GetKeyDown(KeyCode.Space) && isActuallyOnGround)
+        if (_characterController.isGrounded)
         {
-            _moveVector.y += 6;
+            Velocity.y = 0;
+
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                Velocity.y = JumpStrength;
+            }
         }
-
-
     }
 
-    private void Jump()
-    {
-       
-    }
     private void Rotation()
     {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        float mouseX = Input.GetAxis("Mouse X") * _mouseSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * _mouseSensitivity * Time.deltaTime;
         Vector2 targetDelta = new Vector2(mouseX, mouseY);
-        _currentMouseDelta = Vector2.SmoothDamp(_currentMouseDelta, targetDelta, ref _currentMouseVelocity, smoothTime);
+        _currentMouseDelta = Vector2.SmoothDamp(_currentMouseDelta, targetDelta, ref _currentMouseVelocity, _smoothTime);
         _xRotation -= _currentMouseDelta.y;
-        _xRotation = Mathf.Clamp(_xRotation, -xCameraBounds, xCameraBounds);
+        _xRotation = Mathf.Clamp(_xRotation, -_xCameraBounds, _xCameraBounds);
         transform.Rotate(Vector3.up * _currentMouseDelta.x);
-        camera.transform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f);
-    }
-
-    private void LateUpdate()
-    {
-
-        
+        _camera.transform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f);
     }
 }
