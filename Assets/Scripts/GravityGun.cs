@@ -10,7 +10,7 @@ public class GravityGun : MonoBehaviour
     [SerializeField] float lerpSpeed = 10f;
     [SerializeField] Transform objectHolder; // is what is called to "grab" the object
 
-    Rigidbody grabbedRB;
+    Rigidbody grabbedRB; //added a rigidbody to the target prefab
 
 
     void Start()
