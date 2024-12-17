@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Dying : MonoBehaviour
@@ -15,5 +16,10 @@ public class Dying : MonoBehaviour
     void Update()
     {
         
+    }
+
+    private void OnCollisionEnter(Collision other)
+    {
+        Destroy(player);
     }
 }
